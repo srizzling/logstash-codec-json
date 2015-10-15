@@ -29,6 +29,12 @@ class LogStash::Codecs::JSON < LogStash::Codecs::Base
   # For nxlog users, you may to set this to "CP1252".
   config :charset, :validate => ::Encoding.name_list, :default => "UTF-8"
 
+
+
+  # Ignore Hex-Code \xHHH
+  config :escaped_hex_code, :validate => :boolean, :default => false
+
+
   public
   def register
     @converter = LogStash::Util::Charset.new(@charset)
@@ -37,6 +43,11 @@ class LogStash::Codecs::JSON < LogStash::Codecs::Base
 
   public
   def decode(data)
+    # Lets replace all hex codes with ucode equivalent 
+    if @escaped_hex_code 
+      data = data.gsub('\x', '\u00')
+    end
+    
     data = @converter.convert(data)
     begin
       decoded = LogStash::Json.load(data)

@@ -47,7 +47,7 @@ class LogStash::Codecs::JSON < LogStash::Codecs::Base
     if @escaped_hex_code 
       data = data.gsub('\x', '\u00')
     end
-    
+
     data = @converter.convert(data)
     begin
       decoded = LogStash::Json.load(data)
